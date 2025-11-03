@@ -7,8 +7,8 @@ public class MainCalc{
         System.out.println("Start: multimethods calling from now on.");
         
         // define a and b.
-        int a = 10;
-        int b = 11;
+        int a = Integer.parseInt(args[0]);
+        int b = Integer.parseInt(args[1]);
 
         // call the results.
         int resultOfPlus = CalcLogic.plusCalc(a, b);
