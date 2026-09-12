@@ -1,4 +1,4 @@
-ここには、私が学習したJavaの知識を整理しまとめておくための場所とする。
+ここは、私が学習したJavaの知識を整理しまとめておくための場所とする。
 
 ## 目次
 
@@ -7,7 +7,7 @@
 - [List / Map / Set](Collection_class/what_is_Collection.md)
   - [メソッド一覧](Collection_class/Collection_method_list.md)
 - [Optional クラス](Optional_class/what_is_Optional.md)
-  - [メソッド一覧](Optional_class/Optional_method_list.md)
+  - [メソッド一覧](Optional_class/Optional_method_list.md)v
 - [String / StringBuilder](String_class/what_is_String.md)
   - [メソッド一覧](String_class/String_method_list.md)
 - [日付・時間 API（java.time）](DateTime_class/what_is_DateTime.md)
@@ -45,8 +45,12 @@
   - [アノテーション一覧](Lombok/Lombok_method_list.md)
 - [GoF デザインパターン（実務頻出）](DesignPatterns/what_is_DesignPatterns.md)
   - [構造・コード例一覧](DesignPatterns/DesignPatterns_method_list.md)
-- [モダンJava機能（record / switch式 / ラムダ式）](ModernJava/what_is_ModernJava.md)
-  - [構文一覧](ModernJava/ModernJava_method_list.md)
+- [record](Record_class/what_is_Record.md)
+  - [構文一覧](Record_class/Record_method_list.md)
+- [switch式・パターンマッチング](Switch_class/what_is_Switch.md)
+  - [構文一覧](Switch_class/Switch_method_list.md)
+- [ラムダ式・匿名クラス](Lambda_class/what_is_Lambda.md)
+  - [構文・インターフェース一覧](Lambda_class/Lambda_method_list.md)
 
 ### アプリケーション共通処理・連携基盤
 
@@ -67,6 +71,7 @@
 ### その他
 
 - [for文](for/Main1.java)
+  - [continue文とは](for/what_is_Continue.md)
 - [クラス連携の練習](linkTwoClasses)
   - [CalcLogics.java](linkTwoClasses/CalcLogics.java)
   - [MainCalc.java](linkTwoClasses/MainCalc.java)
