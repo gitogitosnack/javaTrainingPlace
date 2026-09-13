@@ -16,14 +16,18 @@ Apache POIの全APIを網羅するのではなく、**業務で実際によく�
 | 🔥 **よく使う**   | `workbook.createSheet(String name)`  | 指定した**名前のシート**をブックに追加します。                                                                                                                                         |
 | 🔥 **よく使う**   | `sheet.createRow(int rownum)`        | シートに**指定した行番号（0始まり）の行**を作成します。                                                                                                                                |
 | 🔥 **よく使う**   | `row.createCell(int column)`         | 行に**指定した列番号（0始まり）のセル**を作成します。                                                                                                                                  |
-| 🔥 **よく使う**   | `cell.setCellValue(...)`             | セルに**値を設定**します（`String`, `double`, `boolean`, `Date`などをオーバーロードで受け付ける）。                                                                                    |
+| 🔥 **よく使う**   | `cell.setCellValue(...)`             | セルに**値を設定**します（`String`, `double`, `boolean`, `Date`, `Calendar`, `LocalDate`, `LocalDateTime`, `RichTextString`などをオーバーロードで受け付ける）。                        |
+| 💡 **たまに使う** | `cell.setCellFormula(String formula)` | セルに**数式**（例: `"A1+B1"`、先頭の`=`は不要）を設定します。計算結果を画面で確認するには、Excelで開いた際の自動計算に任せるか、`FormulaEvaluator`で評価する必要があります。            |
 | 💡 **たまに使う** | `workbook.createCellStyle()`         | **セルの書式**（太字、罫線、背景色、日付フォーマットなど）を定義する`CellStyle`を作成します。                                                                                          |
 | 💡 **たまに使う** | `cell.setCellStyle(CellStyle style)` | セルに**書式を適用**します（ヘッダー行を太字にするなど）。                                                                                                                             |
 | 💡 **たまに使う** | `sheet.autoSizeColumn(int column)`   | 列幅を**内容に合わせて自動調整**します。                                                                                                                                               |
 | 🔥 **よく使う**   | `workbook.write(OutputStream out)`   | 組み立てた内容を**実際のファイル（ストリーム）に書き出し**ます。                                                                                                                       |
+| 💡 **たまに使う** | `Files.newOutputStream(Path path)`   | `java.nio.file.Files`が提供する、指定した**パスへの`OutputStream`を取得**するメソッド。`new FileOutputStream(String)`よりモダンな書き方で、`workbook.write(...)`にそのまま渡せます。   |
 | 🔥 **よく使う**   | `workbook.close()`                   | 使用したリソースを**解放**します（`try-with-resources`推奨）。                                                                                                                         |
 
-> 📌 **モダンな書き方:** `new XSSFWorkbook()`のように具象クラスを直接`new`するのではなく、`WorkbookFactory.create(...)`から共通インターフェース`Workbook`を受け取るのが現代的なスタイルです。書き込み先を`.xls`に変えたくなった場合も、呼び出し元のコードをほぼ変えずに済みます。
+> 📌 **モダンな書き方:**
+> - `new XSSFWorkbook()`のように具象クラスを直接`new`するのではなく、`WorkbookFactory.create(...)`から共通インターフェース`Workbook`を受け取るのが現代的なスタイルです。書き込み先を`.xls`に変えたくなった場合も、呼び出し元のコードをほぼ変えずに済みます。
+> - ファイル出力にも`new FileOutputStream(String)`ではなく、`java.nio.file.Files.newOutputStream(Path)`を使うのが現代的です。`Path`ベースのAPIと統一的に扱え、発生する例外も`NoSuchFileException`など具体的なサブクラスになるため原因を特定しやすくなります。
 
 ---
 
@@ -32,6 +36,7 @@ Apache POIの全APIを網羅するのではなく、**業務で実際によく�
 | 優先度            | メソッド                                                                       | 説明                                                                                                                                                                                         |
 | :---------------- | :----------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 🔥 **よく使う**   | `WorkbookFactory.create(File file)` / `WorkbookFactory.create(InputStream is)` | アップロードされたExcelファイルを読み込みます。ファイルの中身（シグネチャ）を見て**`.xlsx`と`.xls`を自動判別**し、適切な`Workbook`実装を返してくれるため、拡張子を気にする必要がありません。 |
+| 💡 **たまに使う** | `Files.newInputStream(Path path)`                                              | `java.nio.file.Files`が提供する、指定した**パスからの`InputStream`を取得**するメソッド。`new FileInputStream(String)`よりモダンな書き方で、`WorkbookFactory.create(InputStream is)`にそのまま渡せます。 |
 | 🔥 **よく使う**   | `workbook.getSheetAt(int index)`                                               | 指定した**インデックスのシート**を取得します（1枚目は`0`）。                                                                                                                                 |
 | 🔥 **よく使う**   | `sheet.getLastRowNum()`                                                        | シート内の**最後の行番号**を取得します（ループの終端判定に使用）。                                                                                                                           |
 | 🔥 **よく使う**   | `sheet.getRow(int rownum)`                                                     | シートから**指定した行番号（0始まり）の行**を取得します。データが無い行は`null`が返るため`null`チェックが必要。                                                                              |
@@ -50,7 +55,9 @@ Apache POIの全APIを網羅するのではなく、**業務で実際によく�
 | 💡 **たまに使う** | `sheet.iterator()` / 拡張for文                                                 | シートの**全行を順番に走査**します。                                                                                                                                                         |
 | ☠️ **使わない**   | `new XSSFWorkbook(...)` / `new HSSFWorkbook(...)` の直接指定                   | 形式を決め打ちすると、想定と異なる形式（`.xls`しか来ないはずが`.xlsx`が来た、等）のファイルで例外になる。判別は`WorkbookFactory`に任せるのが現代的な書き方。                                 |
 
-> 📌 **モダンな書き方:** ユーザーがアップロードするファイルは`.xlsx`か`.xls`か事前にわからないことが多いため、読み込み側では特に`WorkbookFactory.create(...)`の恩恵が大きいです。ファイルシグネチャから形式を自動判別してくれるので、`if`文で拡張子を判定して`XSSFWorkbook`/`HSSFWorkbook`を出し分ける処理が不要になります。
+> 📌 **モダンな書き方:**
+> - ユーザーがアップロードするファイルは`.xlsx`か`.xls`か事前にわからないことが多いため、読み込み側では特に`WorkbookFactory.create(...)`の恩恵が大きいです。ファイルシグネチャから形式を自動判別してくれるので、`if`文で拡張子を判定して`XSSFWorkbook`/`HSSFWorkbook`を出し分ける処理が不要になります。
+> - ローカルファイルの読み込みにも`new FileInputStream(String)`ではなく、`java.nio.file.Files.newInputStream(Path)`を使うのが現代的です。`Path`ベースのAPIと統一的に扱え、発生する例外も具体的なサブクラスになるため原因を特定しやすくなります。
 
 > 🧮 **数式セルの計算結果を取得する2つの方法:**
 > 1. **キャッシュ値をそのまま読む**: `cell.getCellType()`が`FORMULA`のとき、`cell.getCachedFormulaResultType()`で結果の型を判定し、対応する`get〇〇CellValue()`を呼ぶ。Excelが最後に保存した時点の計算結果を読むだけなので手軽だが、値が古い可能性がある。
@@ -74,8 +81,10 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -124,8 +133,9 @@ public class ExportEmployeeListExample {
                 sheet.autoSizeColumn(i);
             }
 
-            try (FileOutputStream fos = new FileOutputStream("employee_list.xlsx")) {
-                workbook.write(fos); // ファイルへ書き出し
+            // Files.newOutputStream(Path)でモダンにストリームを取得
+            try (OutputStream os = Files.newOutputStream(Path.of("employee_list.xlsx"))) {
+                workbook.write(os); // ファイルへ書き出し
             }
         }
 
@@ -149,13 +159,17 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ImportEmployeeListExample {
     public static void main(String[] args) throws IOException {
-        // ファイルの中身を見て .xlsx / .xls を自動判別してブックを読み込む
-        try (Workbook workbook = WorkbookFactory.create(new File("employee_list.xlsx"))) {
+        // Files.newInputStream(Path)でモダンにストリームを取得し、
+        // .xlsx / .xls を自動判別してブックを読み込む
+        try (InputStream is = Files.newInputStream(Path.of("employee_list.xlsx"));
+             Workbook workbook = WorkbookFactory.create(is)) {
 
             Sheet sheet = workbook.getSheetAt(0); // 1枚目のシートを取得
 
