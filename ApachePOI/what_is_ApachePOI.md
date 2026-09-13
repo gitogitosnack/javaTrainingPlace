@@ -42,10 +42,21 @@ Workbook（ブック全体）
 
 | クラス | 対応拡張子 | 説明 |
 | :--- | :--- | :--- |
-| `XSSFWorkbook` | `.xlsx`（Excel 2007以降） | 🔥 **よく使う**。現在の業務では基本的にこちらを使用する。 |
-| `HSSFWorkbook` | `.xls`（Excel 97-2003） | ☠️ **使わない**。旧形式との互換性が必要な場合のみ使用。 |
+| `XSSFWorkbook` | `.xlsx`（Excel 2007以降） | `.xlsx`を扱う実装クラス。現在の業務ではこちらの形式が基本。 |
+| `HSSFWorkbook` | `.xls`（Excel 97-2003） | `.xls`を扱う実装クラス。旧形式との互換性が必要な場合のみ登場。 |
 
-`Workbook`インターフェースを実装しているため、生成時のクラスを切り替えるだけで、それ以降のコード（`Sheet`や`Cell`の操作）は共通で書ける。
+どちらも共通インターフェース`Workbook`を実装しているため、生成時のクラスを切り替えるだけで、それ以降のコード（`Sheet`や`Cell`の操作）は共通で書ける。
+
+#### 🏭 `WorkbookFactory`：形式を意識せず`Workbook`を得るモダンな方法
+
+実務では`XSSFWorkbook`/`HSSFWorkbook`を**直接`new`する場面は少なく**、`org.apache.poi.ss.usermodel.WorkbookFactory`を使うのが現代的なやり方です。
+
+| メソッド | 用途 |
+| :--- | :--- |
+| `WorkbookFactory.create(boolean xssf)` | 新規に空の`Workbook`を作成（`true`→`.xlsx`、`false`→`.xls`）。 |
+| `WorkbookFactory.create(File file)` / `WorkbookFactory.create(InputStream is)` | 既存ファイルの**中身を見て`.xlsx`か`.xls`かを自動判別**し、対応する`Workbook`を返す。 |
+
+特に読み込み時は、ユーザーがアップロードするファイルが`.xlsx`か`.xls`か事前にわからないことが多いため、`WorkbookFactory`で判別を任せることで`XSSFWorkbook`/`HSSFWorkbook`の出し分けコードが不要になります。`XSSFWorkbook`/`HSSFWorkbook`を直接`new`するのは、内部実装として仕組みを理解する場合や、特殊なAPI（各実装固有の機能）を使う場合に留めるのが望ましいです。
 
 ---
 
@@ -77,15 +88,16 @@ Excel操作（`.xlsx`）を行うには、`poi`と`poi-ooxml`の2つが必要。
 ```java
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 public class ApachePoiMinimalExample {
     public static void main(String[] args) throws IOException {
-        // try-with-resourcesでWorkbookを自動クローズ
-        try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+        // try-with-resourcesでWorkbookを自動クローズ（true = .xlsx形式で新規作成）
+        try (Workbook workbook = WorkbookFactory.create(true)) {
             Sheet sheet = workbook.createSheet("サンプルシート");
 
             Row row = sheet.createRow(0); // 0行目を作成
